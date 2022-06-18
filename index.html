@@ -197,10 +197,10 @@ border:0;
 
 
 // Create a client instance
- var client = new Paho.MQTT.Client("broker.hivemq.com", 8000, "Varun");
+ //var client = new Paho.MQTT.Client("broker.hivemq.com", 8000, "Varun");
  //client = new Paho.MQTT.Client("test.mosquitto.org", 8080, "Varun");
 // client = new Paho.MQTT.Client("test.mosquitto.org", 8080, client_id="", clean_session="true", userdata="none", protocol="MQTTv311", transport="tcp");
-  //client = new Paho.MQTT.Client("test.mosquitto.org", 8080, client_id="", clean_session="true", userdata="none", protocol="MQTTv311", transport="tcp");
+  client = new Paho.MQTT.Client("test.mosquitto.org", 8080, client_id="", clean_session="true", userdata="none", protocol="MQTTv311", transport="tcp");
 
 
 // set callback handlers
