@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+
+<title>Chatt app</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Style the header */
+header {
+  background-color: #666;
+  padding: 30px;
+  text-align: center;
+  font-size: 35px;
+  color: white;
+}
+
+/* Create two columns/boxes that floats next to each other */
+aside {
+  float: left;
+  width: 30%;
+  height: 300px; /* only for demonstration, should be removed */
+  background: #ccc;
+  padding: 20px;
+}
+
+/* Style the list inside the menu */
+nav ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+article {
+  float: left;
+  padding: 20px;
+  width: 70%;
+  background-color: #f1f1f1;
+  overflow:auto;
+
+  height: 300px; /* only for demonstration, should be removed */
+}
+
+/* Clear floats after the columns */
+section::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Style the footer */
+footer {
+  background-color: #777;
+  padding: 10px;
+  text-align: center;
+  color: white;
+}
+
+/* Responsive layout - makes the two columns/boxes stack on top of each other instead of next to each other, on small screens */
+@media (max-width: 600px) {
+  nav, article {
+    width: 100%;
+    height: auto;
+  }
+}
+
+
+#cbox{
+
+ align: bottom;
+
+}
+
+
+input[type=text], select {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+
+#submit {
+  width: 100%;
+  background-color: #4CAF50;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#submit:hover {
+  background-color: #45a049;
+}
+
+
+.navbar {
+  width: 100%;
+  background-color: #555;
+  overflow: auto;
+}
+
+.navbar a {
+  float: left;
+  padding: 12px;
+  color: white;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.navbar a:hover {
+  background-color: #000;
+}
+
+.active {
+  background-color: #04AA6D;
+}
+
+@media screen and (max-width: 500px) {
+  .navbar a {
+    float: none;
+    display: block;
+  }
+}
+
+
+h5{
+
+background-color: #48d96e;
+color: white;
+border:0;
+
+}
+
+
+
+
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <a class="active" href="#"><i class="fa fa-fw fa-home"></i> Home</a> 
+  <a href="#"><i class="fa fa-fw fa-search"></i> Search</a> 
+  <a href="#"><i class="fa fa-fw fa-envelope"></i> Contact</a> 
+  <a href="#"><i class="fa fa-fw fa-user"></i> Login</a>
+</div>
+
+
+
+
+
+<header>
+  <h2>Chatapp</h2>
+</header>
+
+<section>
+ <aside id="userlist" >
+ <h2>Users</h2>
+    
+  </aside>
+  
+   <article id="chatlog">
+    <h1>Chats</h1>
+
+  </article>
+</section>
+
+
+<footer >
+
+  <input id ="chatInput" type="text" placeholder="Type a message" onkeydown="sendMsg(this)"/><br>
+  
+<button id="submit"  onclick="sendMessageButton(getElementById('chatInput').value); getElementById('chatInput').value='';">Submit </button>
+
+</footer>
+<script>
+
+
+
+// Create a client instance
+ var client = new Paho.MQTT.Client("broker.hivemq.com", 8000, "Varun");
+ //client = new Paho.MQTT.Client("test.mosquitto.org", 8080, "Varun");
+// client = new Paho.MQTT.Client("test.mosquitto.org", 8080, client_id="", clean_session="true", userdata="none", protocol="MQTTv311", transport="tcp");
+  //client = new Paho.MQTT.Client("test.mosquitto.org", 8080, client_id="", clean_session="true", userdata="none", protocol="MQTTv311", transport="tcp");
+
+
+// set callback handlers
+client.onConnectionLost = onConnectionLost;
+client.onMessageArrived = onMessageArrived;
+
+// connect the client
+client.connect({onSuccess:onConnect});
+
+
+// called when the client connects
+function onConnect() {
+  // Once a connection has been made, make a subscription and send a message.
+  console.log("onConnect");
+  client.subscribe("codettes2022");
+  message = new Paho.MQTT.Message("Hello");
+  message.destinationName = "codettes2022";
+  client.send(message);
+}
+
+// called when the client loses its connection
+function onConnectionLost(responseObject) {
+  if (responseObject.errorCode !== 0) {
+    console.log("onConnectionLost:"+responseObject.errorMessage);
+  }
+}
+
+// called when a message arrives
+function onMessageArrived(message) {
+  console.log("onMessageArrived:"+message.payloadString);
+  document.getElementById("chatlog").innerHTML += " <h5> >> " + message.payloadString +"</h5>"
+}
+
+function sendMessageButton(msgtext){
+		  	if (msgtext!=''){
+			  message = new Paho.MQTT.Message("VButton says: " +  msgtext);
+			  message.destinationName = "codettes2022";
+			  client.send(message);		  	
+			} 
+		}
+		// OR listen to the Enter event on n input box
+		function sendMsg(ele) {
+		    if(event.key === 'Enter') {
+		    	message = new Paho.MQTT.Message('VInput says: ' +  ele.value);
+		    	message.destinationName = "codettes2022";
+		    	client.send(message);
+		        //alert(ele.value); 
+		        ele.value = ""; // reset the input after entering       
+		    }
+		}
+		
+function myFunction() {
+  var x = document.getElementById("myTopnav");
+  if (x.className === "topnav") {
+    x.className += " responsive";
+  } else {
+    x.className = "topnav";
+  }
+}
+
+
+function updateScroll(){
+    var element = document.getElementById("chatlog");
+    element.scrollTop = element.scrollHeight;
+}
+setInterval(updateScroll,100);
+
+
+
+
+
+</script>
+</body>
+</html>
+
